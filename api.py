@@ -86,4 +86,10 @@ def login():
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    setencia = select(User).select_from(User).where(User.id == current_user)
+    with db.session() as session:
+        user = session.execute(setencia).fetchone()
+        if user is None:
+            return jsonify({"msg": "Bad username or password "}), 401
+    user_name = str(user[0].nombre)
+    return jsonify(logged_in_as=current_user, user_name=user_name), 200
